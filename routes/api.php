@@ -16,6 +16,7 @@ Route::middleware('guest')->group(function(){
 
 Route::middleware('auth:sanctum')->group(function(){
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+Route::resource('users', UserController::class);
 
 
 });

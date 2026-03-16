@@ -21,21 +21,10 @@ public function login(LoginRequest $request)
     }
 /** @var \App\Models\User $loggedUser */
 $loggedUser = Auth::user();
-
-$abilities = ['user'];
-
-if ($loggedUser->tipo_usuario === 'admin') {
-    $abilities = ['admin'];
-}
-
-$token = $loggedUser->createToken('auth_token', $abilities)->plainTextToken;
+$token = $loggedUser->createToken('auth_token', expiresAt: now()->addMonth())->plainTextToken;
 
     return $this->response(
-        'Login successful',
-        200,
-        [
-            'token' => $token
-        ]
+        'Login successful',200, ['token' => $token]
     );
 }
 
