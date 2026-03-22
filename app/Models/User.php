@@ -60,4 +60,9 @@ class User extends Authenticatable
 {
     return $this->belongsToMany(Ability::class, 'user_abilities');
 }
+
+public function visitas()
+{
+    return $this->hasMany(Visitas::class, 'representante_id');
+}
 }

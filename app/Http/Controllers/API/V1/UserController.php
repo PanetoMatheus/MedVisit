@@ -68,10 +68,8 @@ class UserController extends Controller
                 'regiao' => $credentials['regiao'],
                 'ativo' => $credentials['ativo'],
             ]);
-           if ($user->tipo_usuario === 'admin') {
-
+    if ($user->tipo_usuario === 'admin') {
     $abilities = Ability::pluck('id');
-
     $user->abilities()->sync($abilities);
 
 } else {

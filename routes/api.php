@@ -5,6 +5,7 @@ use App\Http\Controllers\API\V1\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\V1\MedicoController;
 use App\Http\Controllers\API\V1\ProdutoController;
+use App\Http\Controllers\API\V1\VisitaController;
 
 Route::prefix('v1')->group(function(){
 
@@ -28,6 +29,12 @@ Route::prefix('v1')->group(function(){
     Route::put('/produtos/{produto}', [ProdutoController::class,'update'])->middleware('tipo.user:Produto.update')->name('produtos.update');
     Route::get('/produtos/{produto}', [ProdutoController::class,'show'])->middleware('tipo.user:Produto.view')->name('produtos.show');
     Route::delete('/produtos/{produto}', [ProdutoController::class,'destroy'])->middleware('tipo.user:Produto.destroy')->name('produtos.destroy');
+
+    Route::get('/visitas', [VisitaController::class,'index'])->middleware('tipo.user:Visita.viewAny')->name('visitas.index');
+    Route::post('/visitas', [VisitaController::class,'store'])->middleware('tipo.user:Visita.store')->name('visitas.store');
+    Route::get('/visitas/{id}', [VisitaController::class,'show'])->middleware('tipo.user:Visita.view')->name('visitas.show');
+    Route::put('/visitas/{id}', [VisitaController::class,'update'])->middleware('tipo.user:Visita.update')->name('visitas.update');
+    Route::delete('/visitas/{id}', [VisitaController::class,'destroy'])->middleware('tipo.user:Visita.destroy')->name('visitas.destroy');
 
 
     });
