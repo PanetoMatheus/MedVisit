@@ -49,4 +49,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+  public function medico()
+    {
+        return $this->hasMany(Medico::class, 'user_id');
+
+    }
+
+   public function abilities()
+{
+    return $this->belongsToMany(Ability::class, 'user_abilities');
+}
 }

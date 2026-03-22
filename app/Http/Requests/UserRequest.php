@@ -13,7 +13,7 @@ class UserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()?->tipo_usuario === 'admin';
+        return true;
     }
 
     /**
@@ -28,7 +28,8 @@ class UserRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'telefone' => ['required', 'string', 'max:20'],
             'regiao' => ['required', 'string', 'max:255'],
-            'ativo' => ['required', 'boolean']
+            'ativo' => ['nullable', 'boolean'],
+            'tipo_usuario'=>['nullable', 'string', 'in:admin,user']
         ];
     }
 }

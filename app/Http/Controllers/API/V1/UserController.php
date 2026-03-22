@@ -9,6 +9,8 @@ use App\Models\User_Regiao;
 use App\Traits\HttpResponse;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Request;
+use App\Models\Ability;
 
 class UserController extends Controller
 {
@@ -59,12 +61,32 @@ class UserController extends Controller
                 'telefone' => $credentials['telefone'],
                 'password' => $credentials['telefone'],
                 'ativo' => $credentials['ativo'],
+                'tipo_usuario' => $credentials['tipo_usuario'] ?? 'user'
             ]);
             $regiao = User_Regiao::create([
                 'user_id' => $user->id,
                 'regiao' => $credentials['regiao'],
                 'ativo' => $credentials['ativo'],
             ]);
+           if ($user->tipo_usuario === 'admin') {
+
+    $abilities = Ability::pluck('id');
+
+    $user->abilities()->sync($abilities);
+
+} else {
+
+    $abilities = Ability::whereIn('name', [
+        'User.update',
+        'User.edit',
+        'User.destroy',
+        'Medico.update',
+        'Medico.edit',
+        'Medico.destroy'
+    ])->pluck('id');
+
+    $user->abilities()->sync($abilities);
+}
 
             return response()->json([
                 'message' => 'Colaborador criado com sucesso',
@@ -157,9 +179,15 @@ public function show(User $user)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(User $user, Request $request)
     {
-        $this->authorize('delete', $user);
+         if (Auth::user()->id !== User::find($user->id)->id) {
+        return $this->error(
+            'Acesso negado',
+            403,
+            ['Você não tem permissão para atualizar este usuário']
+         );
+         }
 
         if(!$user){
             return $this->error(
@@ -168,7 +196,7 @@ public function show(User $user)
                 ['Colaborador não encontrado']
             );
         }
-        $user->delete();
+        $user->softDelete();
         return $this->response(
             'Colaborador deletado com sucesso',
             200

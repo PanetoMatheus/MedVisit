@@ -17,5 +17,13 @@ class UserSeeder extends Seeder
     'tipo_usuario' => 'admin',
     'password' => Hash::make('12345678')
 ]);
+
+    User::create([
+    'nome' => 'Representante Um',
+    'email' => 'representante1@sou.fae.br',
+    'telefone' => '1997830585',
+    'tipo_usuario' => 'user',
+    'password' => Hash::make('12345678')
+]);
     }
 }

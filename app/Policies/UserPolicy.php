@@ -19,6 +19,7 @@ class UserPolicy
      * Determine whether the user can view the model.
      */
     public function view(User $user): bool
+
     {
         return $user->tipo_usuario === 'admin';
     }
