@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nome')->unique();
             $table->string('sigla');
+            $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
     }

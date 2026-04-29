@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('avaliacao_produtos', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Visitas::class)->constrained();
-            $table->foreignIdFor(Produto::class)->constrained();
-            $table->decimal('avaliacao', 3, 2)->nullable();
+            $table->foreignIdFor(Visitas::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Produto::class)->constrained()->cascadeOnDelete();
+            $table->decimal('avaliacao', 4, 2)->nullable();
             $table->timestamps();
         });
     }

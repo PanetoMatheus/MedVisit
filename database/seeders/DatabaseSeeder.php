@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Medico;
+use App\Models\Produtos\Produto;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -18,6 +20,9 @@ class DatabaseSeeder extends Seeder
             EspecialidadeMedicaSeeder::class,
             ProdutoCategoriaSeeder::class,
              UnidadeMedidaProdutoSeeder::class,
+             ProdutoSeeder::class,
+            MedicoSeeder::class,
+            VisitaSeeder::class,
         ]);
     }
 }

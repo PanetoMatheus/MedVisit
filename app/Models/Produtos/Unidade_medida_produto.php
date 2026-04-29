@@ -9,8 +9,13 @@ class Unidade_medida_produto extends Model
     protected $table = 'unidade_medida_produtos';
 
     protected $fillable = [
+        'id',
         'nome',
         'sigla',
+    ];
+    protected $hidden = [
+        'created_at',
+        'updated_at',
     ];
 
     public function produtos()

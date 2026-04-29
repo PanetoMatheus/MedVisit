@@ -6,9 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MedicoRequest;
 use App\Models\Medico;
 use App\Traits\HttpResponse;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Medico_cidade;
-
+use Illuminate\Http\Request;
 
 
 
@@ -18,18 +17,33 @@ class MedicoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $medicos = Medico::with('especialidade', 'representante')->get();
+ public function index(Request $request)
+{
+    $user = $request->user(); 
 
-        if($medicos){
-            return response()->json([
-                'message' => 'Médicos encontrados',
-                'status'=>200,
-                'data'=>$medicos
-            ]);
+    $query = Medico::with(['EspecialidadeMedica', 'user', 'Medico_cidades','produtos']);
+
+    $especialidade = $request->input('especialidade');
+    $representante = $request->input('representante');
+
+    if ($especialidade) {
+        $query->whereHas('EspecialidadeMedica', function ($q) use ($especialidade) {
+            $q->where('nome', $especialidade);
+        });
+    }
+
+    if ($user->tipo_usuario !== 'admin') {
+        $query->where('user_id', $user->id);
+    } else {
+        if ($representante) {
+            $query->where('user_id', $representante);
         }
     }
+
+    $medicos = $query->paginate(10);
+
+    return $this->response('Médicos encontrados', 200, $medicos);
+}
 
     /**
      * Show the form for creating a new resource.
@@ -74,7 +88,7 @@ class MedicoController extends Controller
      */
     public function show(string $id)
     {
-        $medicos = Medico::with('especialidade', 'representante')->where('id', $id)->first();
+        $medicos = Medico::with(['especialidade', 'representante'])->where('id', $id)->first();
 
         if($medicos){
             return response()->json([
@@ -90,7 +104,7 @@ class MedicoController extends Controller
      */
     public function edit(string $id)
     {
-        $medicos = Medico::with('especialidade', 'representante')->where('id', $id)->first()->get();
+        $medicos = Medico::with(['especialidade', 'representante'])->where('id', $id)->first();
 
         if($medicos){
             return response()->json([
@@ -139,19 +153,21 @@ class MedicoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+public function destroy(string $id)
     {
-        if(Auth::user()->tipo_usuario !== 'admin'){
-        if(Auth::user()->id !== Medico::find($id)->user_id){
-            return $this->error('Acesso negado', 403, ['Você não tem permissão para excluir este médico']);
+        $medico = Medico::where('id', $id);
+        if(!$medico){
+            return $this->error(
+                'Médico não encontrado',
+                404,
+                ['Médico não encontrado']
+            );
         }
-        }
-
-        Medico::where('id', $id)->softDelete();
-
-        return response()->json([
-            'message' => 'Médico excluído com sucesso',
-            'status'=>200
-        ]);
+        $medico->delete();
+        return $this->response(
+            'Médico deletado com sucesso',
+            200,
+            'Médico excluido'
+        );
     }
 }

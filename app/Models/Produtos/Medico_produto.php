@@ -10,6 +10,7 @@ use App\Models\Produtos\Produto;
 class Medico_produto extends Model
 {
     protected $fillable = [
+        'id',
         'medico_id',
         'produto_id',
         'produto_foco'

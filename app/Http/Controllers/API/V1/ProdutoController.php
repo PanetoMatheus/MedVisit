@@ -14,21 +14,12 @@ class ProdutoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $produtos = Produto::with('categoria', 'unidadeMedida')->get();
+   public function index()
+{
+    $produtos = Produto::with(['categoria', 'unidadeMedida'])->paginate(10);
 
-        if($produtos){
-            return response()->json([
-                'message' => 'Produtos encontrados',
-                'status'=>200,
-                'data'=>$produtos
-            ]);
-        }
-
-        return $this->error('Nenhum produto encontrado', 404);
-
-    }
+    return $this->response('Produtos encontrados', 200, $produtos);
+}
 
     /**
      * Show the form for creating a new resource.
@@ -61,7 +52,7 @@ class ProdutoController extends Controller
      */
     public function edit(string $id)
     {
-        $produto = Produto::find($id);
+        $produto = Produto::with(['categoria', 'unidadeMedida'])->find($id);
         if (!$produto) {
             return $this->error('Produto não encontrado', 404); 
     }
@@ -73,27 +64,45 @@ class ProdutoController extends Controller
      */
     public function update(ProdutoRequest $request, string $id)
     {
-        $produto = Produto::find($id);
+        $produto = Produto::with(['categoria', 'unidadeMedida'])->find($id);
         if (!$produto) {
             return $this->error('Produto não encontrado', 404);
         }
 
         $validated = $request->validated();
-       Produto::where('id', $id)->update($validated);
-        return $this->response('Produto atualizado com sucesso', 200, $produto);
+       try {
+            $produto->update($validated);
+             return $this->response('Produto atualizado com sucesso', 200, $produto);
+        } catch (\Exception $e) {
+            return $this->error('Erro ao atualizar o produto: ' . $e->getMessage(), 500);
+        }
+       
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
-        $produto = Produto::find($id);
-        if (!$produto) {
-            return $this->error('Produto não encontrado', 404);
+        $produto = Produto::findOrFail($id);
+        if(!$produto){
+            return $this->error(
+                'Produto não encontrado',
+                404,
+                ['Produto não encontrado']
+            );
         }
+        $produto->delete();
+        return $this->response(
+            'Produto deletado com sucesso',
+            200,
+            'Produto excluido'
+        );
+    }
 
-        Produto::softDelete($id);
-        return $this->response('Produto deletado com sucesso', 200);
+    public function produtoEspecialidade(){
+        $produtos = Produto::with(['categoria'])->get()->groupBy('produto_categoria_id');
+
+        return $this->response("Produtos por categoria", 200, $produtos);
     }
 }

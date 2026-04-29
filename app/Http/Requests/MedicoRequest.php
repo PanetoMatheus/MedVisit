@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\EspecialidadeMedica;
 use Illuminate\Validation\Rule;
+use App\Models\Medico;
 
 class MedicoRequest extends FormRequest
 {
@@ -25,8 +26,9 @@ class MedicoRequest extends FormRequest
      */
     public function rules(): array
     {
+        $medicoId = $this->route('medico'); 
         return [
-    "nome" => "required|string|max:255",
+    "nome" => ["required", "string","max:255", Rule::unique('medicos')->ignore($medicoId)],
 
     "especialidade_medica_id" => ["required","integer","exists:especialidade_medicas,id",function ($attribute, $value, $fail) {
             if (!EspecialidadeMedica::where('id', $value)->where('ativo', true)->exists()) {
@@ -40,7 +42,8 @@ class MedicoRequest extends FormRequest
 
     "representante_id" => ["required", "integer", Rule::exists('users', 'id')->where('tipo_usuario', 'user')->where('ativo', true)], "status" => "nullable|boolean",
 
-'produtos' => ['required', 'array'],'produtos.*' => ['required','integer',Rule::exists('produtos', 'id')->where('ativo', true),],
+'produtos' => ['nullable', 'array'],'produtos.*' => ['nullable','integer',Rule::exists('produtos', 'id')->where('ativo', true),],
+'ativo' => ['nullable', 'boolean']
 ];
 }
 }

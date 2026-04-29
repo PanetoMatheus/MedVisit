@@ -9,19 +9,33 @@ use App\Traits\HttpResponse;
 use App\Models\AvaliacaoProduto;
 use Illuminate\Support\Facades\DB;
 use App\Models\Produtos\Medico_produto;
+use Illuminate\Http\Request;
 class VisitaController extends Controller
 {
     use HttpResponse;
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $visitas = Visitas::with(['medico', 'representante', 'produto'])->get();
+    public function index(Request $request)
+{
+    $user = $request->user();
+    $query = Visitas::with(['medico', 'representante', 'AvaliacaoProduto.produto']);
 
-        return $this->success($visitas);
+    if ($request->filled('periodo')) {
+        $query->whereDate('data_visita', $request->periodo);
     }
 
+    if($user->tipo_usuario !== "admin"){
+        $query ->where('user_id', $user->id);
+    }else{
+        if($request->filled('representante')) {
+        $query->where('user_id', $request->representante);
+    }
+    }
+    $visitas = $query->paginate(10);
+
+    return $this->response('Visitas encontradas', 200, $visitas);
+}
     /**
      * Show the form for creating a new resource.
      */
@@ -45,7 +59,7 @@ class VisitaController extends Controller
     'horario_visita' => $validated['horario_visita'],
     'medico_id' => $validated['medico_id'],
     'user_id' => $validated['user_id'],
-    'observacao' => $validated['observacoes'] ?? null,
+    'observacoes' => $validated['observacoes'] ?? null,
     'proximos_passos' => $validated['proximos_passos'] ?? null,
 ]);
         foreach ($validated['avaliacoes'] as $avaliacao) {
@@ -109,32 +123,31 @@ class VisitaController extends Controller
      */
     public function update(VisitaRequest $request, string $id)
     {
-        $visita = Visitas::find($id);
+        $visita = Visitas::with(['medico', 'representante', 'AvaliacaoProduto.produto'])->find($id);
 
         if (!$visita) {
             return $this->error('Visita não encontrada', 404);
         }
 
         $validated = $request->validated();
-       
-        Visitas::where('id', $id)->update($validated);
+        $visita->update($validated);
 
-        return $this->response("Visita atualizada com sucesso", 201, $visita);
+        return $this->response("Visita atualizada com sucesso", 200, $visita);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        $visita = Visitas::find($id);
+  public function destroy(string $visita)
+{
+    $visita = Visitas::find($visita);
 
-        if (!$visita) {
-            return $this->error('Visita não encontrada', 404);
-        }
-
-        Visitas::where('id', $id)->delete();
-
-        return $this->success(null, 204);
+    if (!$visita) {
+      return $this->error('Visita não encontrada', 404);
     }
+
+    $visita->delete();
+
+      return $this->response('Visita excluída com sucesso', 200);
+}
 }

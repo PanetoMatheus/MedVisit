@@ -9,6 +9,7 @@ use App\Models\Visitas;
 class AvaliacaoProduto extends Model
 {
     protected $fillable = [
+        'id',
         'visitas_id',
         'produto_id',
         'avaliacao'

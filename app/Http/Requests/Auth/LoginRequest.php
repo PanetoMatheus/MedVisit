@@ -26,5 +26,30 @@ class LoginRequest extends FormRequest
             'email' => ['required', 'string','email', 'max:255'],
             'password' => ['required','string', 'min:8', 'max:255']
         ];
+        }
+
+           public function messages(): array
+         {        
+            return [
+            'email.required' => 'O campo email é obrigatório.',
+            'email.string' => 'O campo email deve ser uma string.',
+            'email.email' => 'O campo email deve ser um endereço de email válido.',
+            'email.max' => 'O campo email não pode exceder 255 caracteres.',
+            'password.required' => 'O campo senha é obrigatório.',
+            'password.string' => 'O campo senha deve ser uma string.',
+            'password.min' => 'O campo senha deve ter no mínimo 8 caracteres.',
+            'password.max' => 'O campo senha não pode exceder 255 caracteres.',
+        ];
+
     }
+
+     public function attributes(): array
+        {
+            return [
+                'email' => 'email',
+                'password' => 'senha'
+            ];
+        }
+
+        
 }
